@@ -22,8 +22,8 @@ const transaction = async (req, res) => {
   try {
     const condition = { yearMonth: period };
 
-    const result = await TransactionModel.find(condition);
-    res.status(200).send(result);
+    const transactions = await TransactionModel.find(condition);
+    res.status(200).send({ lenght: transactions.length, result: transactions });
   } catch (error) {
     res.status(500).send('Erro: ' + error);
   }

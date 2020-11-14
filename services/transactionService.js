@@ -7,7 +7,6 @@ const ObjectId = mongoose.Types.ObjectId;
 // descobrir esse erro :-/
 const TransactionModel = require('../models/TransactionModel');
 
-// TODO: Persistencia dos dados
 // GET
 const transaction = async (req, res) => {
   const period = req.query.period;
@@ -20,13 +19,65 @@ const transaction = async (req, res) => {
   }
 
   try {
-    const condition = { yearMonth: period };
-
-    const transactions = await TransactionModel.find(condition);
+    const transactions = await TransactionModel.find({ yearMonth: period });
     res.status(200).send({ lenght: transactions.length, result: transactions });
   } catch (error) {
     res.status(500).send('Erro: ' + error);
   }
 };
 
-module.exports = { transaction };
+// create: post
+const create = async (req, res) => {
+  if (!req.body) {
+    return res.status(400).send({ message: 'Dados para insersão vazios' });
+  }
+
+  try {
+    const transaction = new TransactionModel(req.body);
+    await transaction.save();
+
+    res
+      .status(200)
+      .send({ mesage: 'transassão criada com sucesso', transaction });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+// update: put
+const update = async (req, res) => {
+  const id = req.params.id;
+
+  if (!req.body) {
+    return res.status(400).send({ message: 'Dados para insersão vazios' });
+  }
+
+  try {
+    const transaction = await TransactionModel.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
+
+    res.send(transaction);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+// delete
+const remove = async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const transaction = await TransactionModel.findByIdAndDelete(id);
+
+    if (!transaction) {
+      res.status(404).send('Documento não encontrado');
+    } else {
+      res.status(200).send();
+    }
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+module.exports = { transaction, create, update, remove };

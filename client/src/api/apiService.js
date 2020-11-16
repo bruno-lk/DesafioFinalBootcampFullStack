@@ -20,4 +20,4 @@ async function getTransactions() {
   // });
 }
 
-export { getTest, getTransactions };
+export { getTransactions };
